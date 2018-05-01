@@ -1,4 +1,4 @@
-# waterfall-sinanews
+# waterfallNews
 
 ## 懒加载原理
 1.先将img标签中的src链接设为同一张图片（空白图片），将其真正的图片地址存储再img标签的自定义属性中（比如data-src）。
