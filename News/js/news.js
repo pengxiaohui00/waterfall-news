@@ -53,7 +53,7 @@ $(window).scroll(function(){            //页面滚动至底部#load位置,重�
 //获取数据
 function getData(callback){
     $.ajax({
-        url: 'http://platform.sina.com.cn/slide/album_tech',
+        url: '//platform.sina.com.cn/slide/album_tech',
         dataType: 'jsonp',
         jsonp: 'jsoncallback',
         data:{
