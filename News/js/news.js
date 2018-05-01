@@ -6,41 +6,54 @@
 // 2.将数据变为DOM结构,以瀑布流的方式部署到页面上
 // 3.当页面滚动至底部再次获取数据循环
 
-var curPage = 1       //第一次获取数据
-var perPageCount = 10 //每次获取10个数据
+//获取page=1的10条数据；
+// 2把10条数据拼装成dom放到页面
+//3使用瀑布流去摆放dom位置
+//4 page++
+//load出现在可视区域内时
+//获取page的10条数据，重复上述2-4步骤
 
-var itemArr = []  //瀑布流 定义空数组,存放每一列的总高度
-var colLength = parseInt($('#pic-ct').width() / $('.item').outerWidth(true))  //计算得到一排放置item的个数,即列数
+var curPage = 1;     //第一次获取数据
+var perPageCount = 10; //每次获取10个数据
+
+var itemArr = [] ; //定义空数组,存放每一列的总高度
+var colLength = parseInt($('#pic-ct').width() / $('.item').outerWidth(true));  //计算得到一排放置item的个数,即列数
+
+var isDataArrive = true;//假设数据已到达
 for(var i = 0;i < colLength;i++){
-    itemArr[i] = 0   //数组个数为colLength,初始化每个元素为0
+    itemArr[i] = 0 ;  //数组个数为colLength,初始化每个元素为0
 }
-start()            //保证页面初加载
+start() ;           //保证页面初加载
 
 function start(){
     //获取数据,变成DOM结构,瀑布流方式部署到页面
     getData(function(newList){
+        console.log(newList)
+        isDataArrive = true;//加锁
         $(newList).each(function(index,news){
-            var $node = getNode(news)            //将数据变成DOM结构
+            var $node = getNode(news);           //将数据变成DOM结构
 
             $node.find('img').load(function(){   //预加载图片后,将其以瀑布流方式部署在页面上
-                $('#pic-ct').append($node)
-                waterFallPlace($node)
+                $('#pic-ct').append($node);
+                waterFallPlace($node);
             })
         })
     })
+    isDataArrive = false;
 }
 
 
 $(window).scroll(function(){            //页面滚动至底部#load位置,重新加载数据
+    if(!isDataArrive) return;
     if(isVisible($('#load'))){
         start()
     }
-})
+});
 
 //获取数据
 function getData(callback){
     $.ajax({
-        url: '//platform.sina.com.cn/slide/album_tech',
+        url: 'http://platform.sina.com.cn/slide/album_tech',
         dataType: 'jsonp',
         jsonp: 'jsoncallback',
         data:{
@@ -50,10 +63,11 @@ function getData(callback){
         }
     }).done(function(ret){
         if(ret && ret.status && ret.status.code === "0"){   //判断数据是否正常
-            callback(ret.data)                                //回调返回的数据
+            callback(ret.data);                                //回调返回的数据
+            console.log(ret.data);
             curPage++
         }else{
-            console.log('error')
+            alert('请求失败');
         }
     })
 }
@@ -91,7 +105,7 @@ function waterFallPlace($node){
 function isVisible($el){                //图片懒加载
     var elTop = $el.offset().top,         //页面顶部至目标的高度
         scrollTop = $(window).scrollTop(),//滚动距离
-        windowHeight = $(window).height() //窗口高度
+        windowHeight = $(window).height(); //窗口高度
 
     if(elTop < scrollTop + windowHeight + 500){  //还没有滚动至目标就开始加载数据
         return true
@@ -99,6 +113,3 @@ function isVisible($el){                //图片懒加载
         return false
     }
 }
-
-
-
